@@ -146,6 +146,7 @@ export default {
           return console.error(err);
         }
         Quagga.start();
+        console.log('STARTED Quagga')
       });
       Quagga.onDetected(props.onDetected);
       Quagga.onProcessed(onProcessed.value);
@@ -156,6 +157,7 @@ export default {
       if (props.onDetected) Quagga.offDetected(props.onDetected);
       if (onProcessed.value) Quagga.offProcessed(onProcessed.value);
       Quagga.stop();
+      console.log('STOPPED Quagga');
     });
 
     return { quaggaState };
