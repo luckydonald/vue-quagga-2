@@ -5,7 +5,7 @@
   </div>
 </template>
 
-<script>
+<script type="ts">
 import Quagga from '@ericblade/quagga2';
 import {
   ref,
@@ -98,9 +98,9 @@ export default {
         inputStream: {
           type: 'LiveStream',
           constraints: {
-            width: { min: this.readerSize.width },
-            height: { min: this.readerSize.height },
-            facingMode: this.facingMode,
+            width: { min: props.readerSize.width },
+            height: { min: props.readerSize.height },
+            facingMode: props.facingMode,
             aspectRatio: { min: 1, max: 2 },
           },
         },
@@ -111,7 +111,7 @@ export default {
         numOfWorkers: 2,
         frequency: 10,
         decoder: {
-          readers: this.readerTypes,
+          readers: props.readerTypes,
         },
         locate: true,
       });
@@ -140,7 +140,7 @@ export default {
     // this was `destroyed` before, so basically `onUnmount` not the `before` variant.
     onBeforeUnmount(() => {
       if (props.onDetected) Quagga.offDetected(props.onDetected);
-      if (props.onProcessed) Quagga.offProcessed(this.offProcessed);
+      if (props.onProcessed) Quagga.offProcessed(props.onProcessed);
       Quagga.stop();
     });
 
