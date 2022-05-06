@@ -7,6 +7,8 @@
 
 <script type="ts">
 import Quagga from '@ericblade/quagga2';
+import QrCodeReader from './qr_plugin';
+
 import {
   ref,
   watch,
@@ -30,7 +32,10 @@ export default {
     },
     readerTypes: {
       type: Array,
-      default: () => ['code_128_reader'],
+      default: () => [
+        'code_128_reader',
+        'qrcode',
+      ],
     },
     readerSize: {
       type: Object,
@@ -141,6 +146,7 @@ export default {
     });
 
     onMounted(() => {
+      Quagga.registerReader('qrcode', QrCodeReader);
       Quagga.init(quaggaState.value, function (err) {
         if (err) {
           return console.error(err);
