@@ -1,7 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 // Quagga may have a dependency on the name of the property _row
-import jsQR from 'jsqr';
-// eslint-disable-next-line import/no-extraneous-dependencies
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import jsQR from "jsqr";
+// // eslint-disable-next-line import/no-extraneous-dependencies
 import { ImageWrapper } from '@ericblade/quagga2';
 
 class QrCodeReader {
@@ -14,11 +16,11 @@ class QrCodeReader {
 
     _row: [];
 
-    config: {};
+    config: Record<string, unknown>;
 
     supplements: any;
 
-    constructor(config: {}, supplements: any) {
+    constructor(config: Record<string, unknown>, supplements: any) {
         this._row = [];
         this.config = config || {};
         this.supplements = supplements;
