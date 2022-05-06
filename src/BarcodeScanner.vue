@@ -7,6 +7,12 @@
 
 <script>
 import Quagga from '@ericblade/quagga2';
+import {
+  ref,
+  watch,
+  onMounted,
+  onBeforeUnmount,
+} from "vue";
 
 export default {
   name: 'QuaggaScanner',
@@ -87,9 +93,8 @@ export default {
       default: () => 'environment'
     }
   },
-  data: function() {
-    return {
-      quaggaState: {
+  setup(props) {
+    const quaggaState = ref({
         inputStream: {
           type: 'LiveStream',
           constraints: {
@@ -109,33 +114,37 @@ export default {
           readers: this.readerTypes,
         },
         locate: true,
-      },
-    };
-  },
-  watch: {
-    onDetected: function(oldValue, newValue) {
+      });
+
+    watch(props.onDetected, (oldValue, newValue) => {
       if (oldValue) Quagga.offDetected(oldValue);
       if (newValue) Quagga.onDetected(newValue);
-    },
-    onProcessed: function(oldValue, newValue) {
+    });
+
+    watch(props.onProcessed, (oldValue, newValue) => {
       if (oldValue) Quagga.offProcessed(oldValue);
       if (newValue) Quagga.onProcessed(newValue);
-    },
-  },
-  mounted: function() {
-    Quagga.init(this.quaggaState, function(err) {
-      if (err) {
-        return console.error(err);
-      }
-      Quagga.start();
     });
-    Quagga.onDetected(this.onDetected);
-    Quagga.onProcessed(this.onProcessed);
-  },
-  destroyed: function() {
-    if (this.onDetected) Quagga.offDetected(this.onDetected);
-    if (this.onProcessed) Quagga.offProcessed(this.offProcessed);
-    Quagga.stop();
+
+    onMounted(() => {
+      Quagga.init(quaggaState.value, function (err) {
+        if (err) {
+          return console.error(err);
+        }
+        Quagga.start();
+      });
+      Quagga.onDetected(props.onDetected);
+      Quagga.onProcessed(props.onProcessed);
+    });
+
+    // this was `destroyed` before, so basically `onUnmount` not the `before` variant.
+    onBeforeUnmount(() => {
+      if (props.onDetected) Quagga.offDetected(props.onDetected);
+      if (props.onProcessed) Quagga.offProcessed(this.offProcessed);
+      Quagga.stop();
+    });
+
+    return { quaggaState };
   },
 };
 </script>
