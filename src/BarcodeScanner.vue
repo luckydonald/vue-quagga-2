@@ -101,28 +101,33 @@ export default {
           );
       }
     };
-    const onProcessed = defaultOnFrame;
-    const quaggaState = ref({
-        inputStream: {
-          type: 'LiveStream',
-          constraints: {
-            width: { min: props.readerSize.width },
-            height: { min: props.readerSize.height },
-            facingMode: props.facingMode,
-            aspectRatio: { min: 1, max: 2 },
+    const onProcessed = computed(() => {
+      return props.onProcessed !== undefined ? props.onProcessed : defaultOnFrame;
+    });
+    const quaggaState = computed(() => {
+        return {
+          inputStream: {
+            type: 'LiveStream',
+            constraints: {
+              width: {min: props.readerSize.width},
+              height: {min: props.readerSize.height},
+              facingMode: props.facingMode,
+              aspectRatio: {min: 1, max: 2},
+            },
           },
-        },
-        locator: {
-          patchSize: 'medium',
-          halfSample: true,
-        },
-        numOfWorkers: 2,
-        frequency: 10,
-        decoder: {
-          readers: props.readerTypes,
-        },
-        locate: true,
-      });
+          locator: {
+            patchSize: 'medium',
+            halfSample: true,
+          },
+          numOfWorkers: 2,
+          frequency: 10,
+          decoder: {
+            readers: props.readerTypes,
+          },
+          locate: true,
+        }
+      }
+    );
 
     watch(props.onDetected, (oldValue, newValue) => {
       if (oldValue) Quagga.offDetected(oldValue);
