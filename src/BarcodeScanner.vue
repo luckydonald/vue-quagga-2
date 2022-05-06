@@ -93,13 +93,13 @@ export default {
             { color: 'red', lineWidth: 3 }
           );
         }
-      } else {
+      } else if (drawingCtx && drawingCtx.clearRect) {
         drawingCtx.clearRect(
             0,
             0,
             parseInt(drawingCanvas.getAttribute('width')),
             parseInt(drawingCanvas.getAttribute('height'))
-          );
+        );
       }
     };
     const onProcessed = computed(() => {
