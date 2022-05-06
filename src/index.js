@@ -1,4 +1,4 @@
-import 'webrtc-adapter';
+// import 'webrtc-adapter';
 import Scanner from './BarcodeScanner.vue';
 
 export default {
