@@ -1,6 +1,7 @@
 <template>
-  <div id="interactive" class="viewport scanner">
-    <video />
+  <div id="interactive" class="viewport scanner" :style="{ minWidth: `${videoWidth || readerSize.width }px`, minHeight: `${videoHeight || readerSize.height }px` }">
+    <!-- :style="{ minWidth: `${readerSize.width}px`, minHeight: `${readerSize.height}px` }" -->
+    <video/>
     <canvas class="drawingBuffer" />
   </div>
 </template>
@@ -60,9 +61,15 @@ export default {
     }
   },
   setup(props) {
+    const canvas = ref(null);  // assigned in the html via `ref="canvas"`.
+    const videoWidth = ref(0)
+    const videoHeight = ref(0)
+
     const defaultOnFrame = (result) => {
       let drawingCtx = Quagga.canvas.ctx.overlay;
       let drawingCanvas = Quagga.canvas.dom.overlay;
+      // videoWidth.value = Quagga.canvas.dom.overlay.width;
+      // videoHeight.value = Quagga.canvas.dom.overlay.height;
 
       if (result) {
         if (result.boxes) {
@@ -166,7 +173,12 @@ export default {
       console.log('STOPPED Quagga');
     });
 
-    return { quaggaState };
+    return {
+      quaggaState,
+      canvas,
+      videoWidth,
+      videoHeight,
+    };
   },
 };
 </script>
