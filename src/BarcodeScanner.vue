@@ -72,6 +72,7 @@ export default {
       // videoHeight.value = Quagga.canvas.dom.overlay.height;
 
       if (result) {
+        console.log(result);
         if (result.boxes) {
           drawingCtx.clearRect(
             0,
@@ -96,6 +97,12 @@ export default {
             lineWidth: 2,
           });
         }
+        if (result.line) {
+          Quagga.ImageDebug.drawPath(result.line, { x: 0, y: 1 }, drawingCtx, {
+            color: '#00F',
+            lineWidth: 2,
+          });
+        }
 
         if (result.codeResult && result.codeResult.code) {
           Quagga.ImageDebug.drawPath(
@@ -105,7 +112,7 @@ export default {
             { color: 'red', lineWidth: 3 }
           );
         }
-      } else if (drawingCtx && drawingCtx.clearRect) {
+      } else if (drawingCtx) {
         drawingCtx.clearRect(
             0,
             0,
