@@ -99,14 +99,14 @@ export default defineComponent({
   },
   setup(props: any) {
     const canvas = ref(null);  // assigned in the html via `ref="canvas"`.
-    const videoWidth = ref(0)
-    const videoHeight = ref(0)
+    const videoWidth = ref(0);
+    const videoHeight = ref(0);
 
     const defaultOnFrame: QuaggaJSResultCallbackFunction = (result: QuaggaJSResultObject) => {
       let drawingCtx = Quagga.canvas.ctx.overlay;
       let drawingCanvas = Quagga.canvas.dom.overlay;
-      // videoWidth.value = Quagga.canvas.dom.overlay.width;
-      // videoHeight.value = Quagga.canvas.dom.overlay.height;
+      videoWidth.value = Quagga.canvas.dom.overlay.width;
+      videoHeight.value = Quagga.canvas.dom.overlay.height;
 
       if (result) {
         console.log(result);
@@ -159,8 +159,8 @@ export default defineComponent({
         drawingCtx.clearRect(
             0,
             0,
-            parseInt(drawingCanvas.getAttribute('width') ?? '0'),
-            parseInt(drawingCanvas.getAttribute('height') ?? '0')
+            videoWidth.value,
+            videoHeight.value,
         );
       }
     };
