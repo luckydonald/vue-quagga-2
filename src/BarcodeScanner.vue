@@ -44,6 +44,38 @@ type ReaderSize = {
   height: number,
 };
 
+type WrongPosType = any[];
+type WrongSizeType = QuaggaJSRectSize;
+const wrongPosTypeGuard = (o: any): o is WrongPosType => typeof o === "object" && typeof o.x === "number" && typeof o.y === "number";
+const wrongSizeTypeGuard = (o: any): o is WrongSizeType => typeof o === "object" && typeof o.x === "number" && typeof o.y === "number";
+const convertWrongPosType = function (o: QuaggaJSxy): WrongPosType {
+  if (!wrongPosTypeGuard(o)) {
+    throw "Should be that type";
+  }
+  return o;
+}
+const convertWrongSizeType = function (o: QuaggaJSxy): WrongSizeType {
+  if (!wrongSizeTypeGuard(o)) {
+    throw "Should be that type";
+  }
+  return o;
+}
+
+type QrCodeResultObject = QRCode & {
+  codeResult: {
+    code: string,
+    format: string,
+  }
+};
+
+function isQuaggaJSResultObject(o: any): o is QuaggaJSResultObject {
+  return isObjectWithKeys(o, ["codeResult", "line", "angle", "pattern", "box", "boxes"]);
+}
+function isQrCodeResultObject(o: any): o is QrCodeResultObject {
+  return isObjectWithKeys(o, ["codeResult", "binaryData", "data", "chunks", "version", "location"]);
+
+}
+
 export default defineComponent({
   name: 'QuaggaScanner',
   props: {
@@ -102,7 +134,7 @@ export default defineComponent({
     const videoWidth = ref(0);
     const videoHeight = ref(0);
 
-    const defaultOnFrame: QuaggaJSResultCallbackFunction = (result: QuaggaJSResultObject) => {
+    const defaultOnFrame: QuaggaJSResultCallbackFunction = (result: QuaggaJSResultObject | QrCodeResultObject) => {
       let drawingCtx = Quagga.canvas.ctx.overlay;
       let drawingCanvas = Quagga.canvas.dom.overlay;
       videoWidth.value = Quagga.canvas.dom.overlay.width;
