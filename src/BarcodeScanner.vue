@@ -6,8 +6,12 @@
   </div>
 </template>
 
-<script type="ts">
-import Quagga from '@ericblade/quagga2';
+<script lang="ts">
+import Quagga, {
+  QuaggaJSConfigObject,
+  QuaggaJSResultCallbackFunction,
+  QuaggaJSResultObject,
+} from '@ericblade/quagga2';
 import QrCodeReader from './qr_plugin';
 
 import {
@@ -16,56 +20,67 @@ import {
   onMounted,
   onBeforeUnmount,
   computed,
+  PropType,
+  defineComponent,
 } from "vue";
 
-export default {
+type CallbackFunctionValues = QuaggaJSResultCallbackFunction | undefined;
+type AspectRatio = {
+  min: number,
+  max: number,
+};
+type ReaderSize = {
+  width: number,
+  height: number,
+};
+
+export default defineComponent({
   name: 'QuaggaScanner',
   props: {
     onDetected: {
-      type: Function,
-      default(result) {
-        console.log('detected: ', result);
+      type: Function as PropType<QuaggaJSResultCallbackFunction>,
+      default(data: QuaggaJSResultObject) {
+        console.log('detected: ', data);
       },
     },
     onProcessed: {
-      type: Function,
+      type: Function as PropType<CallbackFunctionValues>,
       default: undefined,
     },
     readerTypes: {
-      type: Array,
+      type: Array as PropType<string[]>,
       default: () => [
         'code_128_reader',
         'qrcode',
       ],
     },
     readerSize: {
-      type: Object,
+      type: Object as PropType<ReaderSize>,
       default: () => ({
         width: 640,
         height: 480,
       }),
-      validator: o =>
-        typeof o.width === 'number' && typeof o.height === 'number',
+      validator: (o: any) => typeof o === 'object' && typeof o.width === 'number' && typeof o.height === 'number',
     },
     aspectRatio: {
-      type: Object,
+      type: Object as PropType<AspectRatio>,
       default: () => ({
         min: 1,
         max: 2,
       }),
-      validator: o => typeof o.min === 'number' && typeof o.max === 'number',
+      validator: (o: any) => typeof o === 'object' && typeof o.min === 'number' && typeof o.max === 'number',
     },
     facingMode: {
-      type: String,
+      type: String as PropType<string>,
       default: () => 'environment'
     }
   },
-  setup(props) {
+  setup(props: any) {
     const canvas = ref(null);  // assigned in the html via `ref="canvas"`.
     const videoWidth = ref(0)
     const videoHeight = ref(0)
 
-    const defaultOnFrame = (result) => {
+    const defaultOnFrame: QuaggaJSResultCallbackFunction = (result: QuaggaJSResultObject) => {
       let drawingCtx = Quagga.canvas.ctx.overlay;
       let drawingCanvas = Quagga.canvas.dom.overlay;
       // videoWidth.value = Quagga.canvas.dom.overlay.width;
@@ -77,8 +92,8 @@ export default {
           drawingCtx.clearRect(
             0,
             0,
-            parseInt(drawingCanvas.getAttribute('width')),
-            parseInt(drawingCanvas.getAttribute('height'))
+            parseInt(drawingCanvas.getAttribute('width') ?? '0'),
+            parseInt(drawingCanvas.getAttribute('height') ?? '0')
           );
           result.boxes
             .filter(function(box) {
@@ -116,15 +131,15 @@ export default {
         drawingCtx.clearRect(
             0,
             0,
-            parseInt(drawingCanvas.getAttribute('width')),
-            parseInt(drawingCanvas.getAttribute('height'))
+            parseInt(drawingCanvas.getAttribute('width') ?? '0'),
+            parseInt(drawingCanvas.getAttribute('height') ?? '0')
         );
       }
     };
-    const onProcessed = computed(() => {
+    const onProcessed = computed((): QuaggaJSResultCallbackFunction => {
       return props.onProcessed !== undefined ? props.onProcessed : defaultOnFrame;
     });
-    const quaggaState = computed(() => {
+    const quaggaState = computed((): QuaggaJSConfigObject => {
         return {
           inputStream: {
             type: 'LiveStream',
@@ -149,12 +164,12 @@ export default {
       }
     );
 
-    watch(props.onDetected, (oldValue, newValue) => {
+    watch(props.onDetected, (oldValue: CallbackFunctionValues, newValue: CallbackFunctionValues) => {
       if (oldValue) Quagga.offDetected(oldValue);
       if (newValue) Quagga.onDetected(newValue);
     });
 
-    watch(onProcessed, (oldValue, newValue) => {
+    watch(onProcessed, (oldValue: CallbackFunctionValues, newValue: CallbackFunctionValues) => {
       if (oldValue) Quagga.offProcessed(oldValue);
       if (newValue) Quagga.onProcessed(newValue);
     });
@@ -168,7 +183,9 @@ export default {
         Quagga.start();
         console.log('STARTED Quagga')
       });
-      Quagga.onDetected(props.onDetected);
+      if (props.onDetected) {
+        Quagga.onDetected(props.onDetected);
+      }
       Quagga.onProcessed(onProcessed.value);
     });
 
@@ -187,7 +204,7 @@ export default {
       videoHeight,
     };
   },
-};
+});
 </script>
 
 <style scoped>
