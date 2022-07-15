@@ -24,6 +24,15 @@ import {
   defineComponent,
 } from "vue";
 
+const isError = function(exception: any): exception is Error {
+    return (
+      typeof exception == 'object'
+      && exception !== null
+      && 'name' in exception && typeof exception.name === 'string'
+      && 'message' in exception && typeof exception.message === 'string'
+    );
+}
+
 type CallbackFunctionValues = QuaggaJSResultCallbackFunction | undefined;
 type AspectRatio = {
   min: number,
@@ -175,7 +184,15 @@ export default defineComponent({
     });
 
     onMounted(() => {
-      Quagga.registerReader('qrcode', QrCodeReader);
+      try {
+        Quagga.registerReader('qrcode', QrCodeReader);
+      } catch (e) {
+        if (isError(e) && e.message === 'cannot register existing reader') {
+          console.log(`Reader ${'qrcode'} already registered`)
+        } else {
+          console.warn(`failed to register reader ${'qrcode'}`, e);
+        }
+      }
       Quagga.init(quaggaState.value, function (err) {
         if (err) {
           return console.error(err);
