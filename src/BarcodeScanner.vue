@@ -23,6 +23,7 @@ import {
   PropType,
   defineComponent,
 } from "vue";
+import {CssColor} from "@/helper/cssColor";
 
 const isError = function(exception: any): exception is Error {
     return (
@@ -82,7 +83,15 @@ export default defineComponent({
     facingMode: {
       type: String as PropType<string>,
       default: () => 'environment'
-    }
+    },
+    barcodeBoxColor: {
+      type: String as PropType<CssColor>,
+      default: () => "springgreen",
+    },
+    barcodeLineColor: {
+      type: String as PropType<CssColor>,
+      default: () => "springgreen",
+    },
   },
   setup(props: any) {
     const canvas = ref(null);  // assigned in the html via `ref="canvas"`.
@@ -110,31 +119,31 @@ export default defineComponent({
             })
             .forEach(function(box) {
               Quagga.ImageDebug.drawPath(box, { x: 0, y: 1 }, drawingCtx, {
-                color: 'green',
+                color: props.barcodeBoxColor,
                 lineWidth: 2,
               });
             });
         }
         if (result.box) {
           Quagga.ImageDebug.drawPath(result.box, { x: 0, y: 1 }, drawingCtx, {
-            color: '#00F',
+            color: props.barcodeLineColor,
             lineWidth: 2,
           });
         }
         if (result.line) {
           Quagga.ImageDebug.drawPath(result.line, { x: 0, y: 1 }, drawingCtx, {
-            color: '#00F',
+            color: props.barcodeLineColor,
             lineWidth: 2,
           });
         }
 
         if (result.codeResult && result.codeResult.code) {
           Quagga.ImageDebug.drawPath(
-            result.line,
-            { x: 'x', y: 'y' },
-            drawingCtx,
-            { color: 'red', lineWidth: 3 }
-          );
+          [],
+          { x: 'x', y: 'y' },
+          drawingCtx,
+          { color: props.barcodeBoxColor, lineWidth: 3 }
+        );
         }
       } else if (drawingCtx) {
         drawingCtx.clearRect(
