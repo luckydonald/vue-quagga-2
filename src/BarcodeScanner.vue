@@ -84,6 +84,10 @@ export default defineComponent({
       type: String as PropType<string>,
       default: () => 'environment'
     },
+    anticipationWrapColor: {
+      type: String as PropType<CssColor>,
+      default: () => "springgreen",
+    },
     barcodeBoxColor: {
       type: String as PropType<CssColor>,
       default: () => "springgreen",
@@ -145,6 +149,12 @@ export default defineComponent({
           { color: props.barcodeBoxColor, lineWidth: 3 }
         );
         }
+
+        const size: QuaggaJSxy = {x: videoWidth.value - 4, y: videoHeight.value - 4};
+        Quagga.ImageDebug.drawRect(convertWrongPosType({ x: 2, y: 2 }), convertWrongSizeType(size), drawingCtx, {
+          color: props.anticipationWrapColor,
+          lineWidth: 2,
+        });
       } else if (drawingCtx) {
         drawingCtx.clearRect(
             0,
