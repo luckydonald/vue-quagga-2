@@ -84,6 +84,7 @@ type CallbackFunctionWithPayload = (data: CallbackFunctionPayload) => void | und
 
 export default defineComponent({
   name: 'QuaggaScanner',
+  emits: ['scan'],
   props: {
     onDetected: {
       type: Function as PropType<CallbackFunctionWithPayload>,
@@ -133,7 +134,7 @@ export default defineComponent({
       default: () => "springgreen",
     },
   },
-  setup(props: any) {
+  setup(props: any, { emit }) {
     const canvas = ref(null);  // assigned in the html via `ref="canvas"`.
     const videoWidth = ref(0);
     const videoHeight = ref(0);
@@ -242,7 +243,7 @@ export default defineComponent({
         const code = data.codeResult.code;
         if (code && code !== lastCode.value) {
           lastCode.value = code;
-          alert(`Scanned: ${data.codeResult.code}`)
+          emit('scan', code);
         }
         onDetected.value(data);
       }
