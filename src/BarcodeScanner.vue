@@ -185,10 +185,25 @@ export default defineComponent({
           if (result.location) {
             Quagga.ImageDebug.drawPath(
               [
+                result.location.topLeftCorner,
+                result.location.topRightCorner,
+                result.location.bottomRightCorner,
+                result.location.bottomLeftCorner,
               ],
               {x: 'x', y: 'y'},
               drawingCtx,
               {color: props.barcodeBoxColor, lineWidth: 2}
+            );
+            Quagga.ImageDebug.drawPath(
+              [
+                result.location.topLeftFinderPattern,
+                result.location.topRightFinderPattern,
+                {x: result.location.bottomLeftFinderPattern.x, y: result.location.topRightFinderPattern.y},
+                result.location.bottomLeftFinderPattern,
+              ],
+              {x: 'x', y: 'y'},
+              drawingCtx,
+              {color: props.barcodeLineColor, lineWidth: 2}
             );
           }
         }
