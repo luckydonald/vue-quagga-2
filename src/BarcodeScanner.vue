@@ -38,7 +38,6 @@ const isError = function(exception: any): exception is Error {
     );
 }
 
-type CallbackFunctionValues = QuaggaJSResultCallbackFunction | undefined;
 type AspectRatio = {
   min: number,
   max: number,
@@ -80,17 +79,18 @@ function isQrCodeResultObject(o: any): o is QrCodeResultObject {
 
 }
 
+type CallbackFunctionPayload = QuaggaJSResultObject | QrCodeResultObject;
+type CallbackFunctionWithPayload = (data: CallbackFunctionPayload) => void | undefined;
+
 export default defineComponent({
   name: 'QuaggaScanner',
   props: {
     onDetected: {
-      type: Function as PropType<QuaggaJSResultCallbackFunction>,
-      default(data: QuaggaJSResultObject) {
-        console.log('detected: ', data);
-      },
+      type: Function as PropType<CallbackFunctionWithPayload>,
+      default: undefined,
     },
     onProcessed: {
-      type: Function as PropType<CallbackFunctionValues>,
+      type: Function as PropType<CallbackFunctionWithPayload>,
       default: undefined,
     },
     readerTypes: {
@@ -138,7 +138,9 @@ export default defineComponent({
     const videoWidth = ref(0);
     const videoHeight = ref(0);
 
-    const defaultOnFrame: QuaggaJSResultCallbackFunction = (result: QuaggaJSResultObject | QrCodeResultObject) => {
+    const lastCode = ref<string|undefined>(undefined);
+
+    const defaultOnFrame: CallbackFunctionWithPayload = (result: CallbackFunctionPayload) => {
       let drawingCtx = Quagga.canvas.ctx.overlay;
       let drawingCanvas = Quagga.canvas.dom.overlay;
       videoWidth.value = Quagga.canvas.dom.overlay.width;
@@ -222,9 +224,30 @@ export default defineComponent({
         );
       }
     };
-    const onProcessed = computed((): QuaggaJSResultCallbackFunction => {
+    const defaultOnScan: CallbackFunctionWithPayload = (data: CallbackFunctionPayload): void => {
+      console.log(`scanned code ${data.codeResult.code}: `, data);
+    }
+
+    const onProcessed = computed((): CallbackFunctionWithPayload => {
       return props.onProcessed !== undefined ? props.onProcessed : defaultOnFrame;
     });
+    const onDetected = computed((): CallbackFunctionWithPayload => {
+      return props.onDetected !== undefined ? props.onDetected : defaultOnScan;
+    });
+
+    function onProcessedWhichFakesOnDetected(data: CallbackFunctionPayload): void  {
+      onProcessed.value(data);
+
+      if(data && data.codeResult && data.codeResult.code) {
+        const code = data.codeResult.code;
+        if (code && code !== lastCode.value) {
+          lastCode.value = code;
+          alert(`Scanned: ${data.codeResult.code}`)
+        }
+        onDetected.value(data);
+      }
+    }
+
     const quaggaState = computed((): QuaggaJSConfigObject => {
         return {
           inputStream: {
@@ -250,12 +273,12 @@ export default defineComponent({
       }
     );
 
-    watch(props.onDetected, (oldValue: CallbackFunctionValues, newValue: CallbackFunctionValues) => {
+    watch(onDetected, (oldValue: CallbackFunctionWithPayload, newValue: CallbackFunctionWithPayload) => {
       if (oldValue) Quagga.offDetected(oldValue);
       if (newValue) Quagga.onDetected(newValue);
     });
 
-    watch(onProcessed, (oldValue: CallbackFunctionValues, newValue: CallbackFunctionValues) => {
+    watch(onProcessed, (oldValue: CallbackFunctionWithPayload, newValue: CallbackFunctionWithPayload) => {
       if (oldValue) Quagga.offProcessed(oldValue);
       if (newValue) Quagga.onProcessed(newValue);
     });
@@ -277,16 +300,12 @@ export default defineComponent({
         Quagga.start();
         console.log('STARTED Quagga')
       });
-      if (props.onDetected) {
-        Quagga.onDetected(props.onDetected);
-      }
-      Quagga.onProcessed(onProcessed.value);
+      Quagga.onProcessed(onProcessedWhichFakesOnDetected);
     });
 
     // this was `destroyed` before, so basically `onUnmount` not the `before` variant.
     onBeforeUnmount(() => {
-      if (props.onDetected) Quagga.offDetected(props.onDetected);
-      if (onProcessed.value) Quagga.offProcessed(onProcessed.value);
+      Quagga.offProcessed(onProcessedWhichFakesOnDetected);
       Quagga.stop();
       console.log('STOPPED Quagga');
     });
