@@ -10,7 +10,6 @@
 import Quagga, {
   QuaggaJSConfigObject,
   QuaggaJSRectSize,
-  QuaggaJSResultCallbackFunction,
   QuaggaJSResultObject,
   QuaggaJSxy,
 } from '@ericblade/quagga2';
@@ -148,9 +147,6 @@ export default defineComponent({
       videoHeight.value = Quagga.canvas.dom.overlay.height;
 
       if (result) {
-        if (typeof result === 'object') {
-          console.log('result', result);
-        }
         // so basically both method arguments are wrongly typed. Code expects an object {x: int, y: int} for both,
         // but asks for different stuff in the typing.
         if (isQuaggaJSResultObject(result)) {
