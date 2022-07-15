@@ -145,45 +145,52 @@ export default defineComponent({
       videoHeight.value = Quagga.canvas.dom.overlay.height;
 
       if (result) {
-        console.log(result);
-        if (result.boxes) {
-          drawingCtx.clearRect(
-            0,
-            0,
-            parseInt(drawingCanvas.getAttribute('width') ?? '0'),
-            parseInt(drawingCanvas.getAttribute('height') ?? '0')
-          );
-          result.boxes
-            .filter(function(box) {
-              return box !== result.box;
-            })
-            .forEach(function(box) {
-              Quagga.ImageDebug.drawPath(box, { x: 0, y: 1 }, drawingCtx, {
-                color: props.barcodeBoxColor,
-                lineWidth: 2,
+        if (typeof result === 'object') {
+          console.log('result', result);
+        }
+        // so basically both method arguments are wrongly typed. Code expects an object {x: int, y: int} for both,
+        // but asks for different stuff in the typing.
+        if (isQuaggaJSResultObject(result)) {
+          if (result.boxes) {
+            drawingCtx.clearRect(
+              0,
+              0,
+              parseInt(drawingCanvas.getAttribute('width') ?? '0'),
+              parseInt(drawingCanvas.getAttribute('height') ?? '0')
+            );
+            result.boxes
+              .filter(function (box) {
+                return box !== result.box;
+              })
+              .forEach(function (box) {
+                Quagga.ImageDebug.drawPath(box, { x: 0, y: 1 }, drawingCtx, {
+                  color: props.barcodeBoxColor,
+                  lineWidth: 2,
+                });
               });
+          }
+          if (result.box) {
+            Quagga.ImageDebug.drawPath(result.box, { x: 0, y: 1 }, drawingCtx, {
+              color: props.barcodeLineColor,
+              lineWidth: 2,
             });
-        }
-        if (result.box) {
-          Quagga.ImageDebug.drawPath(result.box, { x: 0, y: 1 }, drawingCtx, {
-            color: props.barcodeLineColor,
-            lineWidth: 2,
-          });
-        }
-        if (result.line) {
-          Quagga.ImageDebug.drawPath(result.line, { x: 0, y: 1 }, drawingCtx, {
-            color: props.barcodeLineColor,
-            lineWidth: 2,
-          });
-        }
-
-        if (result.codeResult && result.codeResult.code) {
-          Quagga.ImageDebug.drawPath(
-          [],
-          { x: 'x', y: 'y' },
-          drawingCtx,
-          { color: props.barcodeBoxColor, lineWidth: 3 }
-        );
+          }
+          if (result.line) {
+            Quagga.ImageDebug.drawPath(result.line, { x: 0, y: 1 }, drawingCtx, {
+              color: props.barcodeLineColor,
+              lineWidth: 2,
+            });
+          }
+        } else if (isQrCodeResultObject(result)) {
+          if (result.location) {
+            Quagga.ImageDebug.drawPath(
+              [
+              ],
+              {x: 'x', y: 'y'},
+              drawingCtx,
+              {color: props.barcodeBoxColor, lineWidth: 2}
+            );
+          }
         }
 
         const size: QuaggaJSxy = {x: videoWidth.value - 4, y: videoHeight.value - 4};
