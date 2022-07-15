@@ -9,8 +9,10 @@
 <script lang="ts">
 import Quagga, {
   QuaggaJSConfigObject,
+  QuaggaJSRectSize,
   QuaggaJSResultCallbackFunction,
   QuaggaJSResultObject,
+  QuaggaJSxy,
 } from '@ericblade/quagga2';
 import QrCodeReader from './qr_plugin';
 
@@ -24,6 +26,8 @@ import {
   defineComponent,
 } from "vue";
 import {CssColor} from "@/helper/cssColor";
+import {QRCode} from "jsqr";
+import {isObjectWithKeys} from "@/helper/isObjectWithKeys";
 
 const isError = function(exception: any): exception is Error {
     return (
