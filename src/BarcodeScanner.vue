@@ -14,25 +14,26 @@
 </template>
 
 <script lang="ts">
-import Quagga, {
+import type {
   QuaggaJSConfigObject,
   QuaggaJSRectSize,
   QuaggaJSResultObject,
   QuaggaJSxy,
 } from "@ericblade/quagga2";
+import Quagga from "@ericblade/quagga2";
 import QrCodeReader from "./qr_plugin";
 
+import type { PropType } from "vue";
 import {
   ref,
   watch,
   onMounted,
   onBeforeUnmount,
   computed,
-  PropType,
   defineComponent,
 } from "vue";
-import { CssColor } from "@/helper/cssColor";
-import { QRCode } from "jsqr";
+import type { CssColor } from "@/helper/cssColor";
+import type { QRCode } from "jsqr";
 import { isObjectWithKeys } from "@/helper/isObjectWithKeys";
 
 const isError = function (exception: any): exception is Error {

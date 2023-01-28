@@ -4,7 +4,7 @@
 // @ts-ignore
 import jsQR from "jsqr";
 // // eslint-disable-next-line import/no-extraneous-dependencies
-import { ImageWrapper } from "@ericblade/quagga2";
+import type { ImageWrapper } from "@ericblade/quagga2";
 
 class QrCodeReader {
   // TODO: is FORMAT, _row, config, supplements actually necessary? check inside quagga to see if
