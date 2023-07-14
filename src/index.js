@@ -1,5 +1,5 @@
 import 'webrtc-adapter';
-import Scanner from './Scanner.vue';
+import Scanner from './BarcodeScanner.vue';
 
 export default {
   install: function(Vue, options) {
